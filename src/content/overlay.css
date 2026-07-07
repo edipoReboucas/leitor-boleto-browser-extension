@@ -41,12 +41,32 @@
   z-index: 1;
 }
 
+#lb-overlay-root .lb-overlay-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 #lb-overlay-root .lb-overlay-hint {
   margin: 0;
   font-size: 14px;
   line-height: 20px;
   color: var(--lb-on-surface-variant);
   white-space: nowrap;
+}
+
+#lb-overlay-root .lb-overlay-tip {
+  display: none;
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lb-on-surface-variant);
+  opacity: 0.85;
+}
+
+#lb-overlay-root .lb-overlay-tip--visible {
+  display: block;
 }
 
 #lb-overlay-root .lb-overlay-cancel {

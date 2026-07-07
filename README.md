@@ -46,6 +46,8 @@ dist/             # saída do build (carregar no Chrome)
 3. Selecione a área do código de barras com dois cliques
 4. A linha digitável formatada será exibida e copiada automaticamente
 
+Se a leitura falhar, aumente o zoom da página antes de selecionar o código.
+
 Pressione **Esc** para cancelar a seleção.
 
 ## Depuração

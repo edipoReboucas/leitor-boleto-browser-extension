@@ -17,6 +17,12 @@ const HINTS = {
   reading: 'Lendo código de barras...',
 };
 
+const OVERLAY_TIP =
+  'Dica: aumente o zoom da página para melhor leitura';
+
+const READ_FAIL_MESSAGE =
+  'Aumente o zoom da página (Ctrl + ou ⌘ +), clique no ícone da extensão e selecione o código novamente.';
+
 function normalizeRect(x1, y1, x2, y2) {
   return {
     x: Math.min(x1, x2),
@@ -62,8 +68,15 @@ export class BarcodeReaderOverlay {
     this.toolbar = document.createElement('div');
     this.toolbar.className = 'lb-overlay-toolbar';
 
+    this.textBlock = document.createElement('div');
+    this.textBlock.className = 'lb-overlay-text';
+
     this.hint = document.createElement('p');
     this.hint.className = 'lb-overlay-hint';
+
+    this.tip = document.createElement('p');
+    this.tip.className = 'lb-overlay-tip';
+    this.tip.textContent = OVERLAY_TIP;
 
     this.cancelButton = document.createElement('button');
     this.cancelButton.className = 'lb-overlay-cancel';
@@ -76,7 +89,9 @@ export class BarcodeReaderOverlay {
     this.loading = document.createElement('div');
     this.loading.className = 'lb-overlay-loading';
 
-    this.toolbar.appendChild(this.hint);
+    this.textBlock.appendChild(this.hint);
+    this.textBlock.appendChild(this.tip);
+    this.toolbar.appendChild(this.textBlock);
     this.toolbar.appendChild(this.cancelButton);
     this.selection.appendChild(this.loading);
     this.root.appendChild(this.scrim);
@@ -103,6 +118,7 @@ export class BarcodeReaderOverlay {
   setState(state) {
     this.state = state;
     this.hint.textContent = HINTS[state];
+    this.tip.classList.toggle('lb-overlay-tip--visible', state === 'idle');
   }
 
   updateSelection(rect) {
@@ -200,9 +216,7 @@ export class BarcodeReaderOverlay {
   onFail(error) {
     debugError('overlay', 'Falha na leitura', error);
     this.destroy();
-    showErrorDialog(
-      'Falha na leitura. Clique no ícone da extensão para tentar novamente.',
-    );
+    showErrorDialog(READ_FAIL_MESSAGE);
   }
 
   onCancel(event) {
