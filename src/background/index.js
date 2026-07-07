@@ -5,11 +5,25 @@ const CONTENT_SCRIPT_FILE = 'content.js';
 
 debug('background', 'Service worker iniciado');
 
-async function getActiveTabId() {
+async function getActiveTab() {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  const tabId = tabs[0]?.id;
-  debug('background', 'Aba ativa', { tabId, url: tabs[0]?.url });
-  return tabId;
+  const tab = tabs[0];
+  debug('background', 'Aba ativa', { tabId: tab?.id, url: tab?.url });
+  return tab;
+}
+
+function openFileAccessHelpPage() {
+  debug('background', 'Abrindo página de ajuda para permissão de arquivos');
+  chrome.tabs.create({ url: chrome.runtime.getURL('file-access.html') });
+}
+
+function openExtensionsPage() {
+  debug('background', 'Abrindo chrome://extensions');
+  chrome.tabs.create({ url: `chrome://extensions/?id=${chrome.runtime.id}` });
+}
+
+async function isFileAccessAllowed() {
+  return chrome.extension.isAllowedFileSchemeAccess();
 }
 
 async function injectContentScript(tabId) {
@@ -46,11 +60,20 @@ async function sendStartMessage(tabId) {
 async function notifyStartBarcodeReader() {
   debug('background', 'Ícone da extensão clicado');
 
-  const tabId = await getActiveTabId();
+  const tab = await getActiveTab();
+  const tabId = tab?.id;
 
   if (tabId === undefined) {
     debugWarn('background', 'Nenhuma aba ativa encontrada');
     return;
+  }
+
+  if (tab.url?.startsWith('file://')) {
+    const allowed = await isFileAccessAllowed();
+    if (!allowed) {
+      openFileAccessHelpPage();
+      return;
+    }
   }
 
   try {
@@ -78,6 +101,10 @@ async function notifyStartBarcodeReader() {
 
 chrome.action.onClicked.addListener(() => {
   notifyStartBarcodeReader();
+});
+
+onMessage(MessageType.OPEN_EXTENSIONS_PAGE, () => {
+  openExtensionsPage();
 });
 
 onMessage(MessageType.READ_BARCODE, (request, sender, sendResponse) => {

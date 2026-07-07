@@ -9,6 +9,8 @@ function copyAssets() {
   mkdirSync('dist/icons', { recursive: true });
   cpSync('manifest.json', 'dist/manifest.json');
   cpSync('public/icons', 'dist/icons', { recursive: true });
+  cpSync('public/file-access.html', 'dist/file-access.html');
+  cpSync('public/file-access.js', 'dist/file-access.js');
 }
 
 const buildOptions = {

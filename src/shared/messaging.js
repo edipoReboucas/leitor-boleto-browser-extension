@@ -1,6 +1,7 @@
 export const MessageType = {
   START_BARCODE_READ: 'startBarcodeRead',
   READ_BARCODE: 'readBarcode',
+  OPEN_EXTENSIONS_PAGE: 'openExtensionsPage',
 };
 
 export function onMessage(type, callback) {

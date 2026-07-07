@@ -48,6 +48,8 @@ dist/             # saída do build (carregar no Chrome)
 
 Se a leitura falhar, aumente o zoom da página antes de selecionar o código.
 
+Para ler boletos em PDF/arquivos locais (`file://`), habilite **Permitir acesso a URLs de arquivos** na página da extensão em `chrome://extensions`. Se a permissão não estiver ativa, a extensão abrirá uma página com instruções ao clicar no ícone.
+
 Pressione **Esc** para cancelar a seleção.
 
 ## Depuração

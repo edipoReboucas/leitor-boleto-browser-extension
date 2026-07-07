@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeitorBoleto — Permissão de arquivos</title>
+  <style>
+    :root {
+      --lb-primary: #1a73e8;
+      --lb-on-primary: #ffffff;
+      --lb-surface: #ffffff;
+      --lb-on-surface: #1d1b20;
+      --lb-on-surface-variant: #49454f;
+      --lb-outline: #79747e;
+      --lb-surface-container: #f3f3f3;
+      --lb-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+      font-family: Roboto, Arial, sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --lb-primary: #a8c7fa;
+        --lb-on-primary: #062e6f;
+        --lb-surface: #2b2930;
+        --lb-on-surface: #e6e1e5;
+        --lb-on-surface-variant: #cac4d0;
+        --lb-outline: #938f99;
+        --lb-surface-container: #36343b;
+        --lb-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--lb-surface-container);
+      color: var(--lb-on-surface);
+    }
+
+    .card {
+      width: min(480px, 100%);
+      background: var(--lb-surface);
+      border-radius: 16px;
+      box-shadow: var(--lb-shadow);
+      padding: 32px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 28px;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--lb-on-surface-variant);
+    }
+
+    ol {
+      margin: 0 0 28px;
+      padding-left: 20px;
+      font-size: 14px;
+      line-height: 22px;
+      color: var(--lb-on-surface);
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    .btn {
+      display: inline-block;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      background: var(--lb-primary);
+      color: var(--lb-on-primary);
+      transition: opacity 150ms ease;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Permissão necessária para arquivos locais</h1>
+    <p class="subtitle">
+      Para ler boletos em PDF ou arquivos abertos no navegador, habilite o acesso a URLs de arquivos.
+    </p>
+    <ol>
+      <li>Abra a página de extensões do Chrome</li>
+      <li>Localize <strong>LeitorBoleto</strong></li>
+      <li>Ative <strong>Permitir acesso a URLs de arquivos</strong></li>
+      <li>Volte ao PDF e clique no ícone da extensão novamente</li>
+    </ol>
+    <button type="button" class="btn" id="open-extensions">Abrir extensões</button>
+  </main>
+  <script src="file-access.js"></script>
+</body>
+</html>
