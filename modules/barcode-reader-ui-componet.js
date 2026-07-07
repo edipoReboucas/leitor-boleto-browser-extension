@@ -147,9 +147,7 @@ if (!barcodeReaderModuleAlreadyLoaded) {
 
     showFail(barcode) {
       this.destroy();
-      this.start();
-      copyToClipboard(' ');
-      alert('falha, tente novamente');
+      showErrorDialog('Falha na leitura. Clique no ícone da extensão para tentar novamente.');
     }
   
     hide() {

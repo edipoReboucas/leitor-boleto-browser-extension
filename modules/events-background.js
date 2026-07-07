@@ -39,6 +39,9 @@ if (!eventsModuleAlreadyLoaded) {
         target: { tabId },
         files: [
           'libs/javascript-barcode-reader.min.js',
+          'libs/boleto-utils.js',
+          'modules/result-dialog.js',
+          'modules/boleto-format.js',
           'modules/events-content.js',
           'modules/barcode.js',
           'modules/barcode-reader-ui-componet.js',
