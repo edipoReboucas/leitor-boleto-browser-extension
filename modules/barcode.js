@@ -24,37 +24,45 @@ if (!barcodeModuleAlreadyLoaded) {
   });
   
   var readBarcode = barcode => new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({type: "readBarcode", ...barcode }, function(barcode) {
-      if (barcode && barcode.barcode) {
-        return resolve(barcode);
-      } else {
-        reject(barcode)
+    chrome.runtime.sendMessage({ type: 'readBarcode', cropBox: barcode.cropBox }, function(response) {
+      if (!response || !response.visibleTabImageDataURL) {
+        return reject(barcode);
       }
-  
-      return true;
+
+      captureVisibleTabImage({ ...barcode, visibleTabImageDataURL: response.visibleTabImageDataURL })
+        .then(cropBarcodeImage)
+        .then(readBarcodeFromImage)
+        .then(resolve)
+        .catch(reject);
     });
   });
-  
+
   var captureVisibleTabImage = barcode => new Promise((resolve, reject) => {
-    chrome.tabs.captureVisibleTab({ format: 'png' },  visibleTabImageDataURL => {
-      const { cropBox } = barcode;
-      const visibleTabImageElement = document.createElement('img');
-      visibleTabImageElement.src = visibleTabImageDataURL;
-  
-      visibleTabImageElement.onload = () => {
-        var visibleTabImage = document.createElement('canvas');
-        visibleTabImage.width = cropBox.refWidth;
-        visibleTabImage.height = cropBox.refHeight;
-        visibleTabImage
+    const { cropBox, visibleTabImageDataURL } = barcode;
+    const visibleTabImageElement = document.createElement('img');
+    visibleTabImageElement.src = visibleTabImageDataURL;
+
+    visibleTabImageElement.onload = () => {
+      var visibleTabImage = document.createElement('canvas');
+      visibleTabImage.width = cropBox.refWidth;
+      visibleTabImage.height = cropBox.refHeight;
+      visibleTabImage
         .getContext('2d')
-        .drawImage(visibleTabImageElement, 0, 0, visibleTabImageElement.width, visibleTabImageElement.height, 0, 0, visibleTabImage.width, visibleTabImage.height);
-  
-        resolve({
-          ...barcode,
-          visibleTabImage
-        });
-      }
-    });
+        .drawImage(
+          visibleTabImageElement,
+          0, 0,
+          visibleTabImageElement.width, visibleTabImageElement.height,
+          0, 0,
+          visibleTabImage.width, visibleTabImage.height
+        );
+
+      resolve({
+        ...barcode,
+        visibleTabImage
+      });
+    };
+
+    visibleTabImageElement.onerror = () => reject(barcode);
   });
   
   var cropBarcodeImage = barcode => new Promise((resolve, reject) => {
