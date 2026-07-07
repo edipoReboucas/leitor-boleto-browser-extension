@@ -1,0 +1,187 @@
+#lb-ext-root {
+  --lb-primary: #1a73e8;
+  --lb-on-primary: #ffffff;
+  --lb-surface: #ffffff;
+  --lb-on-surface: #1d1b20;
+  --lb-on-surface-variant: #49454f;
+  --lb-outline: #79747e;
+  --lb-surface-container: #f3f3f3;
+  --lb-error: #b3261e;
+  --lb-scrim: rgba(0, 0, 0, 0.32);
+  --lb-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Google Sans', Roboto, Arial, sans-serif;
+  position: fixed;
+  inset: 0;
+  z-index: 10000000;
+  pointer-events: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  #lb-ext-root {
+    --lb-primary: #a8c7fa;
+    --lb-on-primary: #062e6f;
+    --lb-surface: #2b2930;
+    --lb-on-surface: #e6e1e5;
+    --lb-on-surface-variant: #cac4d0;
+    --lb-outline: #938f99;
+    --lb-surface-container: #36343b;
+    --lb-error: #f2b8b5;
+    --lb-scrim: rgba(0, 0, 0, 0.6);
+    --lb-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+#lb-ext-root * {
+  box-sizing: border-box;
+}
+
+#lb-ext-root .lb-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--lb-scrim);
+  pointer-events: auto;
+  animation: lb-fade-in 200ms ease;
+}
+
+#lb-ext-root .lb-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100vw - 32px));
+  background: var(--lb-surface);
+  color: var(--lb-on-surface);
+  border-radius: 28px;
+  box-shadow: var(--lb-shadow);
+  padding: 24px;
+  pointer-events: auto;
+  animation: lb-scale-in 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+#lb-ext-root .lb-dialog--boleto {
+  width: min(580px, calc(100vw - 32px));
+}
+
+#lb-ext-root .lb-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+#lb-ext-root .lb-dialog-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+#lb-ext-root .lb-dialog-icon--success {
+  color: #1e8e3e;
+}
+
+#lb-ext-root .lb-dialog-icon--error {
+  color: var(--lb-error);
+}
+
+#lb-ext-root .lb-dialog-title {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 28px;
+  margin: 0;
+}
+
+#lb-ext-root .lb-dialog-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--lb-on-surface-variant);
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+#lb-ext-root .lb-dialog-code {
+  background: var(--lb-surface-container);
+  border: 1px solid var(--lb-outline);
+  border-radius: 12px;
+  padding: 16px;
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: nowrap;
+  overflow-x: auto;
+  color: var(--lb-on-surface);
+  margin: 0 0 24px;
+}
+
+#lb-ext-root .lb-dialog-message {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lb-on-surface-variant);
+  margin: 0 0 24px;
+}
+
+#lb-ext-root .lb-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+#lb-ext-root .lb-btn {
+  border: none;
+  border-radius: 20px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+#lb-ext-root .lb-btn-text {
+  background: transparent;
+  color: var(--lb-primary);
+}
+
+#lb-ext-root .lb-btn-text:hover {
+  background: rgba(26, 115, 232, 0.08);
+}
+
+#lb-ext-root .lb-btn-filled {
+  background: var(--lb-primary);
+  color: var(--lb-on-primary);
+}
+
+#lb-ext-root .lb-btn-filled:hover {
+  filter: brightness(1.08);
+}
+
+#lb-ext-root .lb-snackbar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #323232;
+  color: #ffffff;
+  padding: 14px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  pointer-events: auto;
+  animation: lb-slide-up 200ms ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+@keyframes lb-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes lb-scale-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes lb-slide-up {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

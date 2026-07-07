@@ -1,0 +1,17 @@
+{
+  "name": "leitor-boleto-browser-extension",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Leitor de Código de Barras para Boletos",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "dependencies": {
+    "@mrmgomes/boleto-utils": "^1.3.3",
+    "javascript-barcode-reader": "^1.0.0"
+  }
+}
