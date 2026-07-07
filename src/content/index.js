@@ -20,7 +20,7 @@ if (!window[LOADED_FLAG]) {
   window.addEventListener('keyup', (event) => {
     if (event.key === 'Escape' && barcodeReader.isStarted()) {
       debug('content', 'ESC pressionado — cancelando overlay');
-      barcodeReader.destroy();
+      barcodeReader.cancel();
     }
   });
 

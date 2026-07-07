@@ -1,3 +1,4 @@
+import themeCss from '../shared/theme.css';
 import dialogCss from './result-dialog.css';
 import { copyToClipboard } from '../shared/clipboard.js';
 
@@ -11,7 +12,7 @@ function injectStyles() {
 
   const style = document.createElement('style');
   style.id = STYLES_ID;
-  style.textContent = dialogCss;
+    style.textContent = themeCss + dialogCss;
   document.head.appendChild(style);
 }
 

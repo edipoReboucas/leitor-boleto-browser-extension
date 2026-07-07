@@ -2,63 +2,212 @@ import { readBarcodeFromCropBox } from './barcode-scanner.js';
 import { showBoletoResult } from './boleto-formatter.js';
 import { showErrorDialog } from './result-dialog.js';
 import { debug, debugError } from '../shared/debug.js';
+import themeCss from '../shared/theme.css';
+import overlayCss from './overlay.css';
+
+const ROOT_ID = 'lb-overlay-root';
+const STYLES_ID = 'lb-overlay-styles';
+
+const MIN_SELECTION_WIDTH = 20;
+const MIN_SELECTION_HEIGHT = 10;
+
+const HINTS = {
+  idle: 'Arraste para selecionar o código de barras',
+  dragging: 'Solte para ler o código',
+  reading: 'Lendo código de barras...',
+};
+
+function normalizeRect(x1, y1, x2, y2) {
+  return {
+    x: Math.min(x1, x2),
+    y: Math.min(y1, y2),
+    width: Math.abs(x2 - x1),
+    height: Math.abs(y2 - y1),
+  };
+}
+
+function injectStyles() {
+  if (document.getElementById(STYLES_ID)) {
+    return;
+  }
+
+  const style = document.createElement('style');
+  style.id = STYLES_ID;
+  style.textContent = themeCss + overlayCss;
+  document.head.appendChild(style);
+}
 
 export class BarcodeReaderOverlay {
   constructor() {
     this.started = false;
+    this.state = 'idle';
+    this.dragging = false;
+    this.startX = 0;
+    this.startY = 0;
   }
 
   start() {
     debug('overlay', 'Iniciando overlay de seleção');
-    this.overlay = document.createElement('div');
-    this.rule = document.createElement('div');
+    injectStyles();
 
-    this.ruleStatus = 0;
+    this.root = document.createElement('div');
+    this.root.id = ROOT_ID;
+    this.root.setAttribute('role', 'dialog');
+    this.root.setAttribute('aria-modal', 'true');
+    this.root.setAttribute('aria-label', 'Seleção de código de barras');
 
-    this.ruleStartX = 0;
-    this.ruleStartY = 0;
+    this.scrim = document.createElement('div');
+    this.scrim.className = 'lb-overlay-scrim';
 
-    this.ruleEndX = 0;
-    this.ruleEndY = 0;
+    this.toolbar = document.createElement('div');
+    this.toolbar.className = 'lb-overlay-toolbar';
 
-    this.cropBoxX = 0;
-    this.cropBoxY = 0;
+    this.hint = document.createElement('p');
+    this.hint.className = 'lb-overlay-hint';
 
-    this.cropBoxWidth = 0;
-    this.cropBoxHeight = 0;
+    this.cancelButton = document.createElement('button');
+    this.cancelButton.className = 'lb-overlay-cancel';
+    this.cancelButton.type = 'button';
+    this.cancelButton.textContent = 'Cancelar';
 
-    document.body.appendChild(this.overlay);
+    this.selection = document.createElement('div');
+    this.selection.className = 'lb-overlay-selection';
 
-    this.overlay.appendChild(this.rule);
+    this.loading = document.createElement('div');
+    this.loading.className = 'lb-overlay-loading';
 
-    this.overlay.style.position = 'fixed';
-    this.overlay.style.display = 'none';
-    this.overlay.style.top = '0';
-    this.overlay.style.left = '0';
-    this.overlay.style.width = '100%';
-    this.overlay.style.height = '100%';
-    this.overlay.style.zIndex = '9999999';
-    this.overlay.style.cursor = 'crosshair';
+    this.toolbar.appendChild(this.hint);
+    this.toolbar.appendChild(this.cancelButton);
+    this.selection.appendChild(this.loading);
+    this.root.appendChild(this.scrim);
+    this.root.appendChild(this.toolbar);
+    this.root.appendChild(this.selection);
+    document.body.appendChild(this.root);
 
-    this.rule.style.position = 'fixed';
-    this.rule.style.display = 'none';
-    this.rule.style.top = '0';
-    this.rule.style.left = '0';
-    this.rule.style.width = '0';
-    this.rule.style.height = '0';
-    this.rule.style.boxShadow = '0 0 0 99999px rgba(0, 0, 0, .8)';
-    this.rule.style.zIndex = '9999999';
+    this.onMouseDown = this.onMouseDown.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onCancel = this.onCancel.bind(this);
+    this.onSuccess = this.onSuccess.bind(this);
+    this.onFail = this.onFail.bind(this);
 
-    this.onClickListener = this.onClick.bind(this);
-    this.onMouseMoveListener = this.onMouseMove.bind(this);
-    this.onSuccessListener = this.showSuccess.bind(this);
-    this.onFailListener = this.showFail.bind(this);
+    this.scrim.addEventListener('mousedown', this.onMouseDown);
+    window.addEventListener('mousemove', this.onMouseMove);
+    window.addEventListener('mouseup', this.onMouseUp);
+    this.cancelButton.addEventListener('click', this.onCancel);
 
-    window.addEventListener('click', this.onClickListener);
-    window.addEventListener('mousemove', this.onMouseMoveListener);
-
-    this.show();
+    this.setState('idle');
     this.started = true;
+  }
+
+  setState(state) {
+    this.state = state;
+    this.hint.textContent = HINTS[state];
+  }
+
+  updateSelection(rect) {
+    this.selection.style.left = `${rect.x}px`;
+    this.selection.style.top = `${rect.y}px`;
+    this.selection.style.width = `${rect.width}px`;
+    this.selection.style.height = `${rect.height}px`;
+    this.selection.classList.add('lb-overlay-selection--visible');
+  }
+
+  resetSelection() {
+    this.selection.classList.remove('lb-overlay-selection--visible');
+    this.selection.style.width = '0';
+    this.selection.style.height = '0';
+    this.loading.classList.remove('lb-overlay-loading--visible');
+  }
+
+  onMouseDown(event) {
+    if (this.state === 'reading') {
+      return;
+    }
+
+    if (event.target === this.cancelButton) {
+      return;
+    }
+
+    event.preventDefault();
+    this.dragging = true;
+    this.startX = event.clientX;
+    this.startY = event.clientY;
+    this.setState('dragging');
+    this.updateSelection(normalizeRect(this.startX, this.startY, this.startX, this.startY));
+  }
+
+  onMouseMove(event) {
+    if (!this.dragging || this.state !== 'dragging') {
+      return;
+    }
+
+    this.updateSelection(
+      normalizeRect(this.startX, this.startY, event.clientX, event.clientY),
+    );
+  }
+
+  onMouseUp(event) {
+    if (!this.dragging || this.state !== 'dragging') {
+      return;
+    }
+
+    this.dragging = false;
+    const rect = normalizeRect(this.startX, this.startY, event.clientX, event.clientY);
+
+    if (rect.width < MIN_SELECTION_WIDTH || rect.height < MIN_SELECTION_HEIGHT) {
+      this.resetSelection();
+      this.setState('idle');
+      return;
+    }
+
+    this.startReading({
+      ...rect,
+      refWidth: window.innerWidth,
+      refHeight: window.innerHeight,
+    });
+  }
+
+  startReading(cropBox) {
+    debug('overlay', 'Área selecionada — iniciando leitura', cropBox);
+
+    this.setState('reading');
+    this.scrim.classList.add('lb-overlay-scrim--disabled');
+    this.hideForCapture();
+
+    const runCapture = () => {
+      readBarcodeFromCropBox(cropBox).then(this.onSuccess).catch(this.onFail);
+    };
+
+    // Aguarda o browser repintar sem o overlay na área do código
+    requestAnimationFrame(() => {
+      requestAnimationFrame(runCapture);
+    });
+  }
+
+  hideForCapture() {
+    this.selection.classList.remove('lb-overlay-selection--visible');
+    this.selection.style.display = 'none';
+    this.scrim.style.display = 'none';
+  }
+
+  onSuccess(barcode) {
+    debug('overlay', 'Leitura bem-sucedida', { barcode: barcode.barcode });
+    this.destroy();
+    showBoletoResult(barcode.barcode);
+  }
+
+  onFail(error) {
+    debugError('overlay', 'Falha na leitura', error);
+    this.destroy();
+    showErrorDialog(
+      'Falha na leitura. Clique no ícone da extensão para tentar novamente.',
+    );
+  }
+
+  onCancel(event) {
+    event.stopPropagation();
+    this.destroy();
   }
 
   cancel() {
@@ -74,102 +223,25 @@ export class BarcodeReaderOverlay {
     }
   }
 
-  onMouseMove(event) {
-    if (this.ruleStatus === 1) {
-      if (event.clientY > this.ruleStartY) {
-        this.rule.style.top = this.ruleStartY + 'px';
-        this.rule.style.height = event.clientY - this.ruleStartY + 'px';
-      } else {
-        this.rule.style.top = event.clientY + 'px';
-        this.rule.style.height = this.ruleStartY - event.clientY + 'px';
-      }
-
-      if (event.clientX > this.ruleStartX) {
-        this.rule.style.left = this.ruleStartX + 'px';
-        this.rule.style.width = event.clientX - this.ruleStartX + 'px';
-      } else {
-        this.rule.style.left = event.clientX + 'px';
-        this.rule.style.width = this.ruleStartX - event.clientX + 'px';
-      }
-    }
-  }
-
-  onClick(event) {
-    if (this.ruleStatus === 0) {
-      this.ruleStartX = event.clientX;
-      this.ruleStartY = event.clientY;
-      this.ruleStatus = 1;
-    } else if (this.ruleStatus === 1) {
-      this.ruleStatus = 2;
-      this.ruleEndX = event.clientX;
-      this.ruleEndY = event.clientY;
-
-      if (this.ruleEndX > this.ruleStartX) {
-        this.cropBoxX = this.ruleStartX;
-        this.cropBoxWidth = this.ruleEndX - this.ruleStartX;
-      } else {
-        this.cropBoxX = this.ruleEndX;
-        this.cropBoxWidth = this.ruleStartX - this.ruleEndX;
-      }
-
-      if (this.ruleEndY > this.ruleStartY) {
-        this.cropBoxY = this.ruleStartY;
-        this.cropBoxHeight = this.ruleEndY - this.ruleStartY;
-      } else {
-        this.cropBoxY = this.ruleEndY;
-        this.cropBoxHeight = this.ruleStartY - this.ruleEndY;
-      }
-
-      const cropBox = {
-        x: this.cropBoxX,
-        y: this.cropBoxY,
-        height: this.cropBoxHeight,
-        width: this.cropBoxWidth,
-        refWidth: window.innerWidth,
-        refHeight: window.innerHeight,
-      };
-
-      debug('overlay', 'Área selecionada — iniciando leitura', cropBox);
-
-      readBarcodeFromCropBox(cropBox)
-        .then(this.onSuccessListener)
-        .catch(this.onFailListener);
-    }
-  }
-
-  show() {
-    this.overlay.style.display = 'block';
-    this.rule.style.display = 'block';
-  }
-
-  showSuccess(barcode) {
-    debug('overlay', 'Leitura bem-sucedida', { barcode: barcode.barcode });
-    this.destroy();
-    showBoletoResult(barcode.barcode);
-  }
-
-  showFail(error) {
-    debugError('overlay', 'Falha na leitura', error);
-    this.destroy();
-    showErrorDialog(
-      'Falha na leitura. Clique no ícone da extensão para tentar novamente.',
-    );
-  }
-
-  hide() {
-    this.overlay.style.display = 'none';
-    this.rule.style.display = 'none';
-  }
-
   isStarted() {
     return this.started;
   }
 
   destroy() {
+    if (!this.started) {
+      return;
+    }
+
     debug('overlay', 'Destruindo overlay');
-    window.removeEventListener('click', this.onClickListener);
-    window.removeEventListener('mousemove', this.onMouseMoveListener);
-    document.body.removeChild(this.overlay);
+
+    this.scrim.removeEventListener('mousedown', this.onMouseDown);
+    window.removeEventListener('mousemove', this.onMouseMove);
+    window.removeEventListener('mouseup', this.onMouseUp);
+    this.cancelButton.removeEventListener('click', this.onCancel);
+
+    document.body.removeChild(this.root);
     this.started = false;
+    this.state = 'idle';
+    this.dragging = false;
   }
 }

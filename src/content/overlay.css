@@ -1,0 +1,100 @@
+#lb-overlay-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999999;
+  pointer-events: none;
+}
+
+#lb-overlay-root * {
+  box-sizing: border-box;
+}
+
+#lb-overlay-root .lb-overlay-scrim {
+  position: fixed;
+  inset: 0;
+  pointer-events: auto;
+  cursor: crosshair;
+  animation: lb-fade-in 200ms ease;
+}
+
+#lb-overlay-root .lb-overlay-scrim--disabled {
+  pointer-events: none;
+  cursor: default;
+}
+
+#lb-overlay-root .lb-overlay-toolbar {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--lb-surface);
+  color: var(--lb-on-surface);
+  border-radius: 16px;
+  box-shadow: var(--lb-shadow);
+  padding: 12px 12px 12px 20px;
+  pointer-events: auto;
+  animation: lb-fade-in 200ms ease;
+  max-width: calc(100vw - 32px);
+  z-index: 1;
+}
+
+#lb-overlay-root .lb-overlay-hint {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lb-on-surface-variant);
+  white-space: nowrap;
+}
+
+#lb-overlay-root .lb-overlay-cancel {
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  background: transparent;
+  color: var(--lb-primary);
+  flex-shrink: 0;
+  transition: background 150ms ease;
+}
+
+#lb-overlay-root .lb-overlay-cancel:hover {
+  background: rgba(26, 115, 232, 0.08);
+}
+
+#lb-overlay-root .lb-overlay-selection {
+  position: fixed;
+  display: none;
+  border: 2px solid var(--lb-primary);
+  border-radius: 4px;
+  box-shadow: 0 0 0 9999px var(--lb-scrim);
+  pointer-events: none;
+  z-index: 1;
+}
+
+#lb-overlay-root .lb-overlay-selection--visible {
+  display: block;
+}
+
+#lb-overlay-root .lb-overlay-loading {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border: 3px solid var(--lb-surface-container);
+  border-top-color: var(--lb-primary);
+  border-radius: 50%;
+  animation: lb-spin 0.8s linear infinite;
+}
+
+#lb-overlay-root .lb-overlay-loading--visible {
+  display: block;
+}
