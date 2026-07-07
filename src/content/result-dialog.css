@@ -33,7 +33,8 @@
 }
 
 #lb-ext-root .lb-dialog--boleto {
-  width: min(580px, calc(100vw - 32px));
+  width: fit-content;
+  max-width: min(580px, calc(100vw - 32px));
 }
 
 #lb-ext-root .lb-dialog-header {
@@ -69,7 +70,8 @@
   font-weight: 500;
   letter-spacing: 0.5px;
   color: var(--lb-on-surface-variant);
-  margin: 0 0 8px;
+  margin: 0 0 6px;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -77,14 +79,17 @@
   background: var(--lb-surface-container);
   border: 1px solid var(--lb-outline);
   border-radius: 12px;
-  padding: 16px;
+  padding: 10px 14px;
   font-family: 'Roboto Mono', 'Courier New', monospace;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.4;
   white-space: nowrap;
   overflow-x: auto;
   color: var(--lb-on-surface);
-  margin: 0 0 24px;
+  text-align: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 20px;
 }
 
 #lb-ext-root .lb-dialog-message {
