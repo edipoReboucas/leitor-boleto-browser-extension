@@ -107,7 +107,7 @@ if (!barcodeModuleAlreadyLoaded) {
         type: 'interleaved', //optional type
       }
     ).then(code => {
-      const filteredCode = code.replace(/[^0-9]/);
+      const filteredCode = code.replace(/[^0-9]/g, '');
       if (filteredCode == code && code.length == 44) {
         return filteredCode;
       }

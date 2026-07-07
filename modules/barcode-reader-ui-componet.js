@@ -142,27 +142,15 @@ if (!barcodeReaderModuleAlreadyLoaded) {
   
     showSuccess(barcode) {
       this.destroy();
-      window.setTimeout(() => alert(barcode.barcode), 500);
-      this.copyToClipboard(barcode.barcode);
+      showBoletoResult(barcode.barcode);
     }
-  
+
     showFail(barcode) {
-      this.destroy();  
-      this.start();      
-      this.copyToClipboard(' ');
+      this.destroy();
+      this.start();
+      copyToClipboard(' ');
       alert('falha, tente novamente');
     }
-  
-    copyToClipboard(text) {
-      const input = document.createElement('textarea');
-      input.style.position = 'fixed';
-      input.style.opacity = 0;
-      input.value = text;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand('Copy');
-      document.body.removeChild(input);
-    };
   
     hide() {
       this.overlay.display = 'none';
