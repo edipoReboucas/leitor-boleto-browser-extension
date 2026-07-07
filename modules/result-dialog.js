@@ -72,6 +72,10 @@ if (!resultDialogModuleAlreadyLoaded) {
         animation: lb-scale-in 200ms cubic-bezier(0.2, 0, 0, 1);
       }
 
+      #${ROOT_ID} .lb-dialog--boleto {
+        width: min(580px, calc(100vw - 32px));
+      }
+
       #${ROOT_ID} .lb-dialog-header {
         display: flex;
         align-items: center;
@@ -115,9 +119,10 @@ if (!resultDialogModuleAlreadyLoaded) {
         border-radius: 12px;
         padding: 16px;
         font-family: 'Roboto Mono', 'Courier New', monospace;
-        font-size: 14px;
+        font-size: 13px;
         line-height: 1.6;
-        word-break: break-all;
+        white-space: nowrap;
+        overflow-x: auto;
         color: var(--lb-on-surface);
         margin: 0 0 24px;
       }
@@ -274,7 +279,7 @@ if (!resultDialogModuleAlreadyLoaded) {
     });
 
     const dialog = document.createElement('div');
-    dialog.className = 'lb-dialog';
+    dialog.className = options.code ? 'lb-dialog lb-dialog--boleto' : 'lb-dialog';
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-modal', 'true');
 
