@@ -5,9 +5,11 @@
   "description": "Leitor de Código de Barras para Boletos",
   "scripts": {
     "build": "node build.mjs",
-    "dev": "node build.mjs --watch"
+    "dev": "node build.mjs --watch",
+    "publish:chrome": "node scripts/publish-chrome-store.mjs"
   },
   "devDependencies": {
+    "chrome-webstore-upload": "^3.2.0",
     "esbuild": "^0.25.0"
   },
   "dependencies": {
