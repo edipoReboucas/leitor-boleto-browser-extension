@@ -1,6 +1,6 @@
 {
   "name": "LeitorBoleto",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Leitor de Código de Barras para Boletos",
   "permissions": [
     "activeTab",
